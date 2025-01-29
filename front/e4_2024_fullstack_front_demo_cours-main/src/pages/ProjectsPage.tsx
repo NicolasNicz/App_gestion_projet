@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { 
-    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, 
-    Typography, Card, CardContent, Button, TextField, Dialog, DialogActions, 
-    DialogContent, DialogTitle 
+import {
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow,
+    Typography, Card, CardContent, Button, TextField, Dialog, DialogActions,
+    DialogContent, DialogTitle
 } from "@mui/material";
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export function ProjectsPage() {
     const [projects, setProjects] = useState([]);
@@ -36,7 +37,7 @@ export function ProjectsPage() {
 
             const datav2 = {
                 ...data,
-                participants: participantsArray, 
+                participants: participantsArray,
                 stories: storiesArray,
             };
 
@@ -58,19 +59,42 @@ export function ProjectsPage() {
         }
     }
 
+    async function onDelete(projectId: string) {
+        const confirmDelete = window.confirm("Êtes-vous sûr de vouloir supprimer ce projet?");
+        if (confirmDelete) {
+            try {
+                const response = await fetch(`http://localhost:3000/projects/${projectId}`, {
+                    method: 'DELETE',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ id: { _id: projectId } }),
+                });
+
+                if (response.ok) {
+                    fetchProjects();
+                    reset();
+                } else {
+                    console.error("Erreur lors de la suppression du projet");
+                }
+            } catch (error) {
+                console.error("Erreur lors de la suppression du projet:", error);
+            }
+        }
+    }
+
+
     return (
-        <Card sx={{ maxWidth: "80%", margin: "auto", mt: 4, p: 2, boxShadow: 3 }}>
+        <Card sx={{ margin: "auto", mt: 6, boxShadow: 3 }}>
             <CardContent>
-                <Typography variant="h4" align="center" gutterBottom>
+                <Typography variant="h4" align="center">
                     Liste des Projets
                 </Typography>
 
-                <Button variant="contained" color="primary" onClick={() => setOpen(true)} sx={{ mb: 2 }}>
+                <Button variant="contained" onClick={() => setOpen(true)} >
                     Ajouter un Projet
                 </Button>
 
                 {/* tableau avec les projets */}
-                <TableContainer component={Paper}>
+                <TableContainer>
                     <Table>
                         <TableHead>
                             <TableRow>
@@ -95,11 +119,22 @@ export function ProjectsPage() {
                                     </TableCell>
                                     <TableCell>
                                         {project.sprints?.length > 0
-                                            ? project.sprints.map((s: any) => `Sprint ${s.id}: ${new Date(s.startDate).toLocaleDateString()} → ${new Date(s.endDate).toLocaleDateString()}`).join("\n")
+                                            ? project.sprints.map((s: any) => `Sprint: ${new Date(s.startDate).toLocaleDateString()} → ${new Date(s.endDate).toLocaleDateString()}`).join("\n")
                                             : "Aucun"}
                                     </TableCell>
                                     <TableCell>
                                         {project.stories?.length > 0 ? project.stories.join(", ") : "Aucune"}
+                                    </TableCell>
+                                    <TableCell>
+                                        {/* Bouton de suppression */}
+                                        <Button
+                                            variant="contained"
+                                            color="error"
+                                            onClick={() => onDelete(project._id)}
+                                            startIcon={<DeleteIcon />}
+                                        >
+                                            Supprimer
+                                        </Button>
                                     </TableCell>
                                 </TableRow>
                             ))}
@@ -113,92 +148,92 @@ export function ProjectsPage() {
                 <DialogTitle>Ajouter un Projet</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit(onSubmit)}>
-                    <TextField
-                        label="Nom"
-                        fullWidth
-                        margin="dense"
-                        {...register("name", { required: true })}
-                    />
-                    <TextField
-                        label="Description"
-                        fullWidth
-                        margin="dense"
-                        {...register("description")}
-                    />
-                    <TextField
-                        label="Scrum Master"
-                        fullWidth
-                        margin="dense"
-                        {...register("scrumMaster")}
-                    />
-                    <TextField
-                        label="Product Owner"
-                        fullWidth
-                        margin="dense"
-                        {...register("productOwner")}
-                    />
-                    <TextField
-                        label="Leader"
-                        fullWidth
-                        margin="dense"
-                        {...register("leader")}
-                    />
-                    
-                    {/* participants */}
-                    <TextField
-                        label="Participants (séparés par des virgules)"
-                        fullWidth
-                        margin="dense"
-                        {...register("participants")}
-                    />
-                    
-                    {/* sprints */}
-                    <TextField
-                        label="Sprint 1 - Date de début"
-                        fullWidth
-                        margin="dense"
-                        {...register("sprints[0].startDate")}
-                        type="datetime-local"
-                    />
-                    <TextField
-                        label="Sprint 1 - Date de fin"
-                        fullWidth
-                        margin="dense"
-                        {...register("sprints[0].endDate")}
-                        type="datetime-local"
-                    />
-                    
-                    <TextField
-                        label="Sprint 2 - Date de début"
-                        fullWidth
-                        margin="dense"
-                        {...register("sprints[1].startDate")}
-                        type="datetime-local"
-                    />
-                    <TextField
-                        label="Sprint 2 - Date de fin"
-                        fullWidth
-                        margin="dense"
-                        {...register("sprints[1].endDate")}
-                        type="datetime-local"
-                    />
-                    
-                    {/* stories */}
-                    <TextField
-                        label="Stories (ID séparés par des virgules)"
-                        fullWidth
-                        margin="dense"
-                        {...register("stories")}
-                    />
+                        <TextField
+                            label="Nom"
+                            fullWidth
+                            margin="dense"
+                            {...register("name", { required: true })}
+                        />
+                        <TextField
+                            label="Description"
+                            fullWidth
+                            margin="dense"
+                            {...register("description")}
+                        />
+                        <TextField
+                            label="Scrum Master"
+                            fullWidth
+                            margin="dense"
+                            {...register("scrumMaster")}
+                        />
+                        <TextField
+                            label="Product Owner"
+                            fullWidth
+                            margin="dense"
+                            {...register("productOwner")}
+                        />
+                        <TextField
+                            label="Leader"
+                            fullWidth
+                            margin="dense"
+                            {...register("leader")}
+                        />
 
-                    <DialogActions>
-                        <Button onClick={() => setOpen(false)} color="secondary">
-                        Annuler
-                        </Button>
-                        <Button type="submit" variant="contained" color="primary">
-                        Ajouter
-                        </Button>
-                    </DialogActions>
+                        {/* participants */}
+                        <TextField
+                            label="Participants (séparés par des virgules)"
+                            fullWidth
+                            margin="dense"
+                            {...register("participants")}
+                        />
+
+                        {/* sprints */}
+                        <TextField
+                            label="Sprint 1 - Date de début"
+                            fullWidth
+                            margin="dense"
+                            {...register("sprints[0].startDate")}
+                            type="datetime-local"
+                        />
+                        <TextField
+                            label="Sprint 1 - Date de fin"
+                            fullWidth
+                            margin="dense"
+                            {...register("sprints[0].endDate")}
+                            type="datetime-local"
+                        />
+
+                        <TextField
+                            label="Sprint 2 - Date de début"
+                            fullWidth
+                            margin="dense"
+                            {...register("sprints[1].startDate")}
+                            type="datetime-local"
+                        />
+                        <TextField
+                            label="Sprint 2 - Date de fin"
+                            fullWidth
+                            margin="dense"
+                            {...register("sprints[1].endDate")}
+                            type="datetime-local"
+                        />
+
+                        {/* stories */}
+                        <TextField
+                            label="Stories (ID séparés par des virgules)"
+                            fullWidth
+                            margin="dense"
+                            {...register("stories")}
+                        />
+
+                        <DialogActions>
+                            <Button onClick={() => setOpen(false)} color="secondary">
+                                Annuler
+                            </Button>
+                            <Button type="submit" variant="contained" color="primary">
+                                Ajouter
+                            </Button>
+                        </DialogActions>
                     </form>
                 </DialogContent>
             </Dialog>

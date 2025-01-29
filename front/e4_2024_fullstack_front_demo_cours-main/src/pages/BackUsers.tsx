@@ -17,9 +17,9 @@ export function BackUsers() {
 
 
     return (
-<Card sx={{ maxWidth: "80%", margin: "auto", mt: 4, p: 2, boxShadow: 3 }}>
+<Card sx={{ maxWidth: "80%", margin: "auto", boxShadow: 3 }}>
 <CardContent>
-    <Typography variant="h4" align="center" gutterBottom>
+    <Typography variant="h5" align="center">
         Utilisateurs
     </Typography>
     <ul>

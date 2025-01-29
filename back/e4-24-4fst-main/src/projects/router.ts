@@ -126,6 +126,8 @@ export const createProjectRoutes = () => {
         next
       ) => {
         try {
+            console.log("body",req.body);
+             
             await DbProject.deleteOne(req.body.id)
             res.sendStatus(StatusCodes.OK)
         } catch (error) {
