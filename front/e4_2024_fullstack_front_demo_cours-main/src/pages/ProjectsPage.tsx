@@ -1,21 +1,47 @@
 import { useEffect, useState } from "react";
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Typography, Card, CardContent } from "@mui/material";
+import { useForm } from "react-hook-form";
+import { 
+    Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, 
+    Typography, Card, CardContent, Button, TextField, Dialog, DialogActions, 
+    DialogContent, DialogTitle 
+} from "@mui/material";
 
 export function ProjectsPage() {
     const [projects, setProjects] = useState([]);
+    const [open, setOpen] = useState(false);
+    const { register, handleSubmit, reset } = useForm();
 
     useEffect(() => {
-        async function fetchProjects() {
-            try {
-                const response = await fetch('http://localhost:3000/projects');
-                const data = await response.json();
-                setProjects(data);
-            } catch (error) {
-                console.error("Error fetching projects:", error);
-            }
-        }
         fetchProjects();
     }, []);
+
+    async function fetchProjects() {
+        try {
+            const response = await fetch('http://localhost:3000/projects');
+            const data = await response.json();
+            setProjects(data);
+        } catch (error) {
+            console.error("Erreur lors du chargement des projets:", error);
+        }
+    }
+
+    async function onSubmit(data: any) {
+        try {
+            const response = await fetch('http://localhost:3000/projects', {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(data),
+            });
+
+            if (response.ok) {
+                fetchProjects();
+                setOpen(false);
+                reset();
+            }
+        } catch (error) {
+            console.error("Erreur lors de l'ajout du projet:", error);
+        }
+    }
 
     return (
         <Card sx={{ maxWidth: "80%", margin: "auto", mt: 4, p: 2, boxShadow: 3 }}>
@@ -23,6 +49,12 @@ export function ProjectsPage() {
                 <Typography variant="h4" align="center" gutterBottom>
                     Liste des Projets
                 </Typography>
+
+                <Button variant="contained" color="primary" onClick={() => setOpen(true)} sx={{ mb: 2 }}>
+                    Ajouter un Projet
+                </Button>
+
+                {/* tableau avec les projets */}
                 <TableContainer component={Paper}>
                     <Table>
                         <TableHead>
@@ -56,6 +88,24 @@ export function ProjectsPage() {
                     </Table>
                 </TableContainer>
             </CardContent>
+
+             {/* dialog pour ajouter un projet a la liste */}
+             <Dialog open={open} onClose={() => setOpen(false)}>
+                <DialogTitle>Ajouter un Projet</DialogTitle>
+                <DialogContent>
+                    <form onSubmit={handleSubmit(onSubmit)}>
+                        <TextField label="Nom" fullWidth margin="dense" {...register("name", { required: true })} />
+                        <TextField label="Description" fullWidth margin="dense" {...register("description")} />
+                        <TextField label="Scrum Master" fullWidth margin="dense" {...register("scrumMaster")} />
+                        <TextField label="Product Owner" fullWidth margin="dense" {...register("productOwner")} />
+
+                        <DialogActions>
+                            <Button onClick={() => setOpen(false)} color="secondary">Annuler</Button>
+                            <Button type="submit" variant="contained" color="primary">Ajouter</Button>
+                        </DialogActions>
+                    </form>
+                </DialogContent>
+            </Dialog>
         </Card>
     );
 }

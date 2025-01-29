@@ -1,25 +1,40 @@
 import { NextFunction, Request, Router } from "express"
 import { DbProject } from "./db/models"
 import { StatusCodes } from "http-status-codes"
+import mongoose from "mongoose";
 
 export const createProjectRoutes = () => {
     const projectRoutes = Router()
-    projectRoutes.post(
-      '/',
-      ( req,
-        res,
-        next
-      ) => {
-        try {
-            const newProject = new DbProject(req.body)
-            newProject.save()
-            res.sendStatus(StatusCodes.CREATED)
-        } catch (error) {
-            console.log(error);
-            next(error)
+
+    function convertToObjectId(value: any) {
+      return mongoose.Types.ObjectId.isValid(value) ? new mongoose.Types.ObjectId(value) : undefined;
+  }
+
+  projectRoutes.post("/", async (req, res, next) => {
+    try {
+        // Convertir les IDs en ObjectId
+        if (req.body.scrumMaster) req.body.scrumMaster = convertToObjectId(req.body.scrumMaster);
+        if (req.body.productOwner) req.body.productOwner = convertToObjectId(req.body.productOwner);
+        if (req.body.leader) req.body.leader = convertToObjectId(req.body.leader);
+        if (req.body.participants) {
+            req.body.participants = req.body.participants
+                .map((id: string) => convertToObjectId(id))
+                .filter((id: any) => id); // Supprime les `undefined`
         }
-      }
-    )
+        if (req.body.stories) {
+            req.body.stories = req.body.stories
+                .map((id: string) => convertToObjectId(id))
+                .filter((id: any) => id);
+        }
+
+        const newProject = new DbProject(req.body);
+        await newProject.save();
+        res.sendStatus(StatusCodes.CREATED);
+    } catch (error) {
+        console.error(error);
+        next(error);
+    }
+});
 
     projectRoutes.put(
       '/:id',

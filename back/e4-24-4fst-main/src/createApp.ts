@@ -14,6 +14,8 @@ import cors from 'cors'
 export const createApp = () => {
   const app = express()
   app.use(cors("http://localhost:3000" as any))
+  app.use(cors("http://localhost:5173" as any))
+  
   app.use(helmet())
   app.use(lusca())
 
