@@ -27,10 +27,25 @@ export function ProjectsPage() {
 
     async function onSubmit(data: any) {
         try {
+
+            console.log('avant transformation:', data);
+
+            const participantsArray = data.participants ? data.participants.split(',').map((id: string) => id.trim()).join(',') : '';
+            const storiesArray = data.stories ? data.stories.split(',').map((id: string) => id.trim()).join(',') : '';
+
+
+            const datav2 = {
+                ...data,
+                participants: participantsArray, 
+                stories: storiesArray,
+            };
+
+            console.log('après transformation:', datav2);
+
             const response = await fetch('http://localhost:3000/projects', {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(data),
+                body: JSON.stringify(datav2),
             });
 
             if (response.ok) {
@@ -78,7 +93,11 @@ export function ProjectsPage() {
                                     <TableCell>
                                         {project.participants?.length > 0 ? project.participants.join(", ") : "Aucun"}
                                     </TableCell>
-                                    <TableCell>{project.sprints?.length || 0}</TableCell>
+                                    <TableCell>
+                                        {project.sprints?.length > 0
+                                            ? project.sprints.map((s: any) => `Sprint ${s.id}: ${new Date(s.startDate).toLocaleDateString()} → ${new Date(s.endDate).toLocaleDateString()}`).join("\n")
+                                            : "Aucun"}
+                                    </TableCell>
                                     <TableCell>
                                         {project.stories?.length > 0 ? project.stories.join(", ") : "Aucune"}
                                     </TableCell>
@@ -89,20 +108,97 @@ export function ProjectsPage() {
                 </TableContainer>
             </CardContent>
 
-             {/* dialog pour ajouter un projet a la liste */}
-             <Dialog open={open} onClose={() => setOpen(false)}>
+            {/* dialog pour ajouter un projet */}
+            <Dialog open={open} onClose={() => setOpen(false)}>
                 <DialogTitle>Ajouter un Projet</DialogTitle>
                 <DialogContent>
                     <form onSubmit={handleSubmit(onSubmit)}>
-                        <TextField label="Nom" fullWidth margin="dense" {...register("name", { required: true })} />
-                        <TextField label="Description" fullWidth margin="dense" {...register("description")} />
-                        <TextField label="Scrum Master" fullWidth margin="dense" {...register("scrumMaster")} />
-                        <TextField label="Product Owner" fullWidth margin="dense" {...register("productOwner")} />
+                    <TextField
+                        label="Nom"
+                        fullWidth
+                        margin="dense"
+                        {...register("name", { required: true })}
+                    />
+                    <TextField
+                        label="Description"
+                        fullWidth
+                        margin="dense"
+                        {...register("description")}
+                    />
+                    <TextField
+                        label="Scrum Master"
+                        fullWidth
+                        margin="dense"
+                        {...register("scrumMaster")}
+                    />
+                    <TextField
+                        label="Product Owner"
+                        fullWidth
+                        margin="dense"
+                        {...register("productOwner")}
+                    />
+                    <TextField
+                        label="Leader"
+                        fullWidth
+                        margin="dense"
+                        {...register("leader")}
+                    />
+                    
+                    {/* participants */}
+                    <TextField
+                        label="Participants (séparés par des virgules)"
+                        fullWidth
+                        margin="dense"
+                        {...register("participants")}
+                    />
+                    
+                    {/* sprints */}
+                    <TextField
+                        label="Sprint 1 - Date de début"
+                        fullWidth
+                        margin="dense"
+                        {...register("sprints[0].startDate")}
+                        type="datetime-local"
+                    />
+                    <TextField
+                        label="Sprint 1 - Date de fin"
+                        fullWidth
+                        margin="dense"
+                        {...register("sprints[0].endDate")}
+                        type="datetime-local"
+                    />
+                    
+                    <TextField
+                        label="Sprint 2 - Date de début"
+                        fullWidth
+                        margin="dense"
+                        {...register("sprints[1].startDate")}
+                        type="datetime-local"
+                    />
+                    <TextField
+                        label="Sprint 2 - Date de fin"
+                        fullWidth
+                        margin="dense"
+                        {...register("sprints[1].endDate")}
+                        type="datetime-local"
+                    />
+                    
+                    {/* stories */}
+                    <TextField
+                        label="Stories (ID séparés par des virgules)"
+                        fullWidth
+                        margin="dense"
+                        {...register("stories")}
+                    />
 
-                        <DialogActions>
-                            <Button onClick={() => setOpen(false)} color="secondary">Annuler</Button>
-                            <Button type="submit" variant="contained" color="primary">Ajouter</Button>
-                        </DialogActions>
+                    <DialogActions>
+                        <Button onClick={() => setOpen(false)} color="secondary">
+                        Annuler
+                        </Button>
+                        <Button type="submit" variant="contained" color="primary">
+                        Ajouter
+                        </Button>
+                    </DialogActions>
                     </form>
                 </DialogContent>
             </Dialog>
