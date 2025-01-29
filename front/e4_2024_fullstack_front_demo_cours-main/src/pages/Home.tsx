@@ -1,32 +1,24 @@
 import { Link, Outlet } from "react-router-dom";
-import "./Home.css";
-import Button from '@mui/material/Button';
+import { AppBar, Toolbar, Typography, Button, Container } from "@mui/material";
 
 export function Home() {
   return (
     <>
-      <h1>Gestion de projet</h1>
-        {/* <Button variant="contained">Hello world</Button> */}
+      {/* barre de nav */}
+      <AppBar position="static">
+        <Toolbar>
+          <Typography variant="h6" sx={{ flexGrow: 1 }}>
+            Gestion de Projet
+          </Typography>
+          <Button color="inherit" component={Link} to="/back">Users</Button>
+          <Button color="inherit" component={Link} to="/projets">Projets</Button>
+        </Toolbar>
+      </AppBar>
 
-      <div className="container">
-        <aside>
-          <nav>
-            <ul>
-              <li>
-                <Link to="/back">Users</Link>
-              </li>
-              <li>
-                <Link to="/projets">projets</Link>
-              </li>
-            </ul>
-          </nav>
-        </aside>
-        <main className="container">
-          <div>
-            <Outlet />
-          </div>
-        </main>
-      </div>
+      {/* contenu */}
+      <Container sx={{ mt: 3 }}>
+        <Outlet />
+      </Container>
     </>
   );
 }

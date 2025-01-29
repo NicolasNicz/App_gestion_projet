@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Typography, Card, CardContent } from "@mui/material";
 
 export function BackUsers() {
 
@@ -16,15 +17,19 @@ export function BackUsers() {
 
 
     return (
-        <>
-            <h1>BackUsers:</h1>
-            <ul>
-                {users.map((user: any) => (
-                    <li key={user.id}>
-                        {user.name} {user.email}
-                    </li>
-                ))}
-            </ul>
-        </>
+<Card sx={{ maxWidth: "80%", margin: "auto", mt: 4, p: 2, boxShadow: 3 }}>
+<CardContent>
+    <Typography variant="h4" align="center" gutterBottom>
+        Utilisateurs
+    </Typography>
+    <ul>
+        {users.map((user: any) => (
+            <li key={user.id}>
+                {user.name} {user.email}
+            </li>
+        ))}
+    </ul>
+</CardContent>
+</Card>
     );
 }
